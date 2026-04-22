@@ -1,15 +1,27 @@
-/* Career Plan — Password Gate
-   Password: "classyvaibhav@15" */
+/* Career Plan — Password Gate (SHA-256)
+   Password is NOT stored here — only its irreversible hash. */
 
 (function () {
   'use strict';
+
+  var PASS_HASH = 'eacdec6b3f33934b21522ba244d638cd90689be32989d22ee9321c4f8540f1b3';
   var AUTH_KEY = '__cp_auth';
+
   if (sessionStorage.getItem(AUTH_KEY) === 'granted') return;
 
   document.documentElement.style.visibility = 'hidden';
 
   document.addEventListener('DOMContentLoaded', function () {
     document.body.style.visibility = 'hidden';
+
+    function sha256(str) {
+      var buf = new TextEncoder().encode(str);
+      return crypto.subtle.digest('SHA-256', buf).then(function (hashBuf) {
+        return Array.from(new Uint8Array(hashBuf))
+          .map(function (b) { return b.toString(16).padStart(2, '0'); })
+          .join('');
+      });
+    }
 
     var overlay = document.createElement('div');
     overlay.id = 'auth-overlay';
@@ -26,7 +38,7 @@
         <div style="width:56px;height:56px;border-radius:14px;\
                     background:linear-gradient(135deg,#0ea5e9,#0369a1);\
                     display:flex;align-items:center;justify-content:center;\
-                    margin:0 auto 20px;font-size:26px;">🔒</div>\
+                    margin:0 auto 20px;font-size:26px;">\xF0\x9F\x94\x92</div>\
         <h2 style="color:#f1f5f9;font-size:22px;font-weight:700;margin-bottom:6px;">\
           Private Document\
         </h2>\
@@ -48,7 +60,7 @@
         <p id="auth-err" style="color:#f87171;font-size:13px;margin-top:12px;min-height:18px;"></p>\
         <a href="index.html"\
            style="color:#64748b;font-size:12px;text-decoration:none;margin-top:8px;display:inline-block;">\
-          ← Back to course home\
+          \u2190 Back to course home\
         </a>\
       </div>';
 
@@ -57,24 +69,25 @@
     var inp = document.getElementById('auth-pw');
     var btn = document.getElementById('auth-btn');
     var err = document.getElementById('auth-err');
-    var PASS = atob('Y2xhc3N5dmFpYmhhdkAxNQ=='); // "classyvaibhav@15"
 
     function attempt() {
-      if (inp.value === PASS) {
-        sessionStorage.setItem(AUTH_KEY, 'granted');
-        overlay.style.opacity = '0';
-        overlay.style.transition = 'opacity 0.3s';
-        setTimeout(function () {
-          overlay.remove();
-          document.documentElement.style.visibility = '';
-          document.body.style.visibility = '';
-        }, 300);
-      } else {
-        err.textContent = 'Incorrect password. Try again.';
-        inp.value = '';
-        inp.style.borderColor = '#f87171';
-        setTimeout(function () { inp.style.borderColor = '#475569'; }, 1500);
-      }
+      sha256(inp.value).then(function (hash) {
+        if (hash === PASS_HASH) {
+          sessionStorage.setItem(AUTH_KEY, 'granted');
+          overlay.style.opacity = '0';
+          overlay.style.transition = 'opacity 0.3s';
+          setTimeout(function () {
+            overlay.remove();
+            document.documentElement.style.visibility = '';
+            document.body.style.visibility = '';
+          }, 300);
+        } else {
+          err.textContent = 'Incorrect password. Try again.';
+          inp.value = '';
+          inp.style.borderColor = '#f87171';
+          setTimeout(function () { inp.style.borderColor = '#475569'; }, 1500);
+        }
+      });
     }
 
     btn.addEventListener('click', attempt);
