@@ -4,12 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bahar Jindani — Electronics &amp; Embedded Career Roadmap</title>
+<script src="assets/js/theme-toggle.js"></script>
 <style>
   :root {
-    --primary: #4f46e5;
-    --primary-light: #eef2ff;
+    --primary: #0d9488;          /* teal-600 — matches landing */
+    --primary-dark: #0f766e;
+    --primary-light: #f0fdfa;    /* light teal background tint */
+    --primary-soft: #ccfbf1;
     --accent: #059669;
     --accent-light: #d1fae5;
+    --cyan: #06b6d4;
+    --cyan-dark: #0891b2;
     --warning: #d97706;
     --warning-light: #fef3c7;
     --danger: #dc2626;
@@ -18,8 +23,36 @@
     --ink-soft: #334155;
     --muted: #64748b;
     --border: #e2e8f0;
-    --bg: #f8fafc;
+    --bg: #fafbfc;
     --card: #ffffff;
+    --hero-grad: linear-gradient(135deg,#0d9488 0%,#0891b2 50%,#0e7490 100%);
+    --phase-grad: linear-gradient(90deg,#0d9488 0%,#0891b2 100%);
+    --action-grad: linear-gradient(135deg,#0d9488 0%,#0e7490 100%);
+    --bar-grad: linear-gradient(90deg,#0d9488,#06b6d4);
+  }
+  [data-theme="dark"] {
+    --primary: #2dd4bf;
+    --primary-dark: #5eead4;
+    --primary-light: rgba(45,212,191,.16);
+    --primary-soft: rgba(45,212,191,.10);
+    --accent: #34d399;
+    --accent-light: rgba(52,211,153,.16);
+    --cyan: #22d3ee;
+    --cyan-dark: #06b6d4;
+    --warning: #fb923c;
+    --warning-light: rgba(251,146,60,.14);
+    --danger: #f87171;
+    --danger-light: rgba(248,113,113,.14);
+    --ink: #f1f5f9;
+    --ink-soft: #cbd5e1;
+    --muted: #94a3b8;
+    --border: #2a3245;
+    --bg: #0a0e1a;
+    --card: #141926;
+    --hero-grad: linear-gradient(135deg,#0f766e 0%,#155e75 50%,#0a0e1a 100%);
+    --phase-grad: linear-gradient(90deg,#0f766e 0%,#0e7490 100%);
+    --action-grad: linear-gradient(135deg,#0d9488 0%,#155e75 100%);
+    --bar-grad: linear-gradient(90deg,#0d9488,#0891b2);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -34,7 +67,7 @@
 
   /* Hero */
   header.hero {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+    background: var(--hero-grad);
     color: white;
     padding: 56px 0 48px;
   }
@@ -56,14 +89,14 @@
   .stat .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.82; font-weight: 600; }
   .stat .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
 
-  /* Nav */
+  /* Section anchor nav (in-page jumps) */
   nav.toc {
-    background: white;
+    background: var(--card);
     border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 50;
     padding: 12px 0;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   }
+  [data-theme="dark"] nav.toc { box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
   nav.toc .wrap { display: flex; gap: 4px; flex-wrap: wrap; }
   nav.toc a {
     color: var(--ink-soft);
@@ -78,7 +111,7 @@
 
   /* Sections */
   section { padding: 56px 0; }
-  section:nth-child(even) { background: white; }
+  section:nth-child(even) { background: var(--card); }
   h2 { font-size: 28px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.3px; }
   h2 .num { color: var(--primary); margin-right: 10px; }
   .section-sub { color: var(--muted); font-size: 15px; margin-bottom: 28px; max-width: 800px; }
@@ -117,7 +150,7 @@
   .assess-grid li { margin: 4px 0; color: var(--ink-soft); font-size: 14px; }
 
   /* Roles table */
-  .roles-table { width: 100%; border-collapse: collapse; margin-top: 8px; background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .roles-table { width: 100%; border-collapse: collapse; margin-top: 8px; background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
   .roles-table th { text-align: left; background: var(--primary-light); color: var(--primary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; padding: 12px 14px; font-weight: 700; }
   .roles-table td { padding: 14px; border-top: 1px solid var(--border); font-size: 14px; vertical-align: top; }
   .roles-table tr:first-child td { border-top: none; }
@@ -135,7 +168,7 @@
     margin-top: 8px;
   }
   .phase {
-    background: white;
+    background: var(--card);
     border-radius: 14px;
     border: 1px solid var(--border);
     overflow: hidden;
@@ -146,7 +179,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 22px;
-    background: linear-gradient(90deg, var(--primary) 0%, #6366f1 100%);
+    background: var(--phase-grad);
     color: white;
   }
   .phase-head .title { font-size: 17px; font-weight: 700; }
@@ -183,12 +216,13 @@
     gap: 18px;
   }
   .project {
-    background: white;
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 22px;
     transition: transform 0.15s, box-shadow 0.15s;
   }
+  [data-theme="dark"] .project:hover { box-shadow: 0 10px 24px rgba(0,0,0,0.4); }
   section:nth-child(even) .project { background: var(--bg); }
   .project:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.07); }
   .project .num {
@@ -213,7 +247,7 @@
   /* Certifications */
   .cert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
   .cert {
-    background: white;
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 18px;
@@ -239,7 +273,7 @@
     gap: 10px;
   }
   .company {
-    background: white;
+    background: var(--card);
     border: 1px solid var(--border);
     padding: 12px 14px;
     border-radius: 10px;
@@ -252,7 +286,7 @@
   /* Interview */
   .iview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   .iview-grid > div {
-    background: white;
+    background: var(--card);
     border-radius: 12px;
     border: 1px solid var(--border);
     padding: 20px;
@@ -265,7 +299,7 @@
 
   /* Action items */
   .actions {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    background: var(--action-grad);
     color: white;
     border-radius: 16px;
     padding: 28px 32px;
@@ -279,7 +313,7 @@
   .salary-grid { display: grid; gap: 8px; }
   .bar-row { display: grid; grid-template-columns: 220px 1fr 90px; align-items: center; gap: 12px; font-size: 13.5px; }
   .bar-wrap { background: var(--border); height: 22px; border-radius: 6px; overflow: hidden; position: relative; }
-  .bar { height: 100%; background: linear-gradient(90deg, #4f46e5, #7c3aed); border-radius: 6px; display: flex; align-items: center; padding: 0 8px; font-size: 11px; color: white; font-weight: 600; }
+  .bar { height: 100%; background: var(--bar-grad); border-radius: 6px; display: flex; align-items: center; padding: 0 8px; font-size: 11px; color: white; font-weight: 600; }
   @media (max-width: 720px) {
     .bar-row { grid-template-columns: 1fr; gap: 4px; }
     header.hero h1 { font-size: 28px; }
@@ -300,9 +334,22 @@
   }
   .note-box strong { color: var(--warning); }
 </style>
-<script src="assets/auth-career.js"></script>
+<script src="assets/js/auth-career.js"></script>
 </head>
 <body>
+
+
+<header class="site-bar">
+  <div class="site-bar-inner">
+    <a href="index.html" class="site-bar-logo">⚡ <span>EmbeddedZero</span></a>
+    <nav class="site-bar-nav">
+      <a href="index.html">Home</a>
+      <a href="notes/index.html">Course Notes</a>
+      <a href="teaching/index.html">Teaching Guide</a>
+      <a href="career_plan.html" class="active">Career Plan</a>
+    </nav>
+  </div>
+</header>
 
 <header class="hero">
   <div class="wrap">

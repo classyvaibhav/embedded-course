@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page not found &mdash; EmbeddedZero</title>
+<meta name="description" content="That page doesn't exist. Pick another route to get back on track.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="assets/js/theme-toggle.js"></script>
+<style>
+  :root{
+    --primary:#0d9488;--primary-dark:#0f766e;--primary-light:#ccfbf1;--primary-soft:#f0fdfa;
+    --accent:#06b6d4;--accent-strong:#0891b2;
+    --ink:#0f172a;--muted:#64748b;
+    --border:#e2e8f0;--bg:#fafbfc;--card:#ffffff;
+  }
+  [data-theme="dark"]{
+    --primary:#2dd4bf;--primary-dark:#5eead4;--primary-light:rgba(45,212,191,.16);--primary-soft:rgba(45,212,191,.08);
+    --accent:#22d3ee;--accent-strong:#06b6d4;
+    --ink:#f1f5f9;--muted:#94a3b8;
+    --border:#2a3245;--bg:#0a0e1a;--card:#141926;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+  main{flex:1;display:flex;align-items:center;justify-content:center;padding:60px 24px}
+  .card{max-width:560px;width:100%;text-align:center}
+  .code{font-size:clamp(72px,14vw,140px);font-weight:900;line-height:1;letter-spacing:-3px;background:linear-gradient(135deg,var(--primary),var(--accent-strong));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
+  h1{font-size:clamp(22px,3vw,30px);font-weight:800;color:var(--ink);margin-bottom:10px;letter-spacing:-.4px}
+  p{color:var(--muted);font-size:16px;line-height:1.7;margin-bottom:28px}
+  .links{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:8px}
+  .links a{display:block;padding:14px 18px;border:1px solid var(--border);border-radius:10px;background:var(--card);text-decoration:none;color:var(--ink);font-weight:600;font-size:14px;transition:all .2s}
+  .links a:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-2px)}
+  .home{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .home:hover{background:var(--primary-dark);color:#fff}
+  [data-theme="dark"] .home{color:#0a0e1a}
+  [data-theme="dark"] .home:hover{color:#0a0e1a}
+</style>
+</head>
+<body>
+
+<header class="site-bar">
+  <div class="site-bar-inner">
+    <a href="index.html" class="site-bar-logo">⚡ <span>EmbeddedZero</span></a>
+    <nav class="site-bar-nav">
+      <a href="index.html">Home</a>
+      <a href="notes/index.html">Course Notes</a>
+      <a href="teaching/index.html">Teaching Guide</a>
+      <a href="career_plan.html">Career Plan</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="card">
+    <div class="code">404</div>
+    <h1>This page is off the breadboard.</h1>
+    <p>The URL you opened doesn't exist on this site &mdash; it may have been moved, renamed, or never built. Pick a route to keep learning.</p>
+    <div class="links">
+      <a class="home" href="index.html">&larr; Back to home</a>
+      <a href="notes/index.html">Course Notes</a>
+      <a href="teaching/index.html">Teaching Guide</a>
+      <a href="career_plan.html">Career Plan</a>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

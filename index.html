@@ -5,152 +5,261 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Embedded Systems Course &mdash; from Zero to Hero</title>
 <meta name="description" content="A free, hands-on embedded systems course covering basic electronics, Arduino, ESP32, sensors, and real projects. Built as a practical entry-level curriculum.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="assets/js/theme-toggle.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-    background: #fafaf9;
-    color: #1e293b;
-    line-height: 1.65;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
-  header.hero {
-    background: linear-gradient(135deg, #0d9488 0%, #0369a1 50%, #6b21a8 100%);
-    color: white;
-    padding: 80px 0 70px;
-    text-align: center;
-  }
-  header.hero h1 { font-size: 44px; font-weight: 800; letter-spacing: -0.8px; margin-bottom: 12px; }
-  header.hero .subtitle { font-size: 19px; opacity: 0.95; max-width: 720px; margin: 0 auto; }
-  header.hero .tagline { display: inline-block; background: rgba(255,255,255,0.18); padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 18px; }
+:root{
+  --primary:#0d9488;--primary-dark:#0f766e;--primary-light:#ccfbf1;--primary-soft:#f0fdfa;
+  --accent:#06b6d4;--accent-strong:#0891b2;
+  --ink:#0f172a;--ink-soft:#1a1a2e;--text:#334155;--muted:#64748b;--muted-2:#94a3b8;
+  --border:#e2e8f0;--border-soft:#f1f5f9;--border-mid:#e5e7eb;
+  --bg:#fafbfc;--card:#ffffff;--card-soft:#fafbfc;
+  --grid-line:rgba(0,0,0,.03);
+  --nav-bg:rgba(255,255,255,.85);
+  --shadow-card:0 16px 40px rgba(13,148,136,.10);
+  --shadow-soft:0 8px 24px rgba(0,0,0,.06);
+  --footer-bg:#0f172a;--footer-fg:#94a3b8;--footer-strong:#fff;--footer-link:#2dd4bf;--footer-link-h:#5eead4;
+  --teal-mint:#99f6e4;
+  --purple:#8b5cf6;--purple-d:#7c3aed;--purple-light:#f5f3ff;--purple-border:#ede9fe;
+  --amber:#f59e0b;--amber-d:#b45309;--amber-light:#fffbeb;--amber-border:#fef3c7;
+  --green-d:#059669;--orange:#f97316;--violet-2:#a855f7;
+}
+[data-theme="dark"]{
+  --primary:#2dd4bf;--primary-dark:#5eead4;--primary-light:rgba(45,212,191,.16);--primary-soft:rgba(45,212,191,.08);
+  --accent:#22d3ee;--accent-strong:#06b6d4;
+  --ink:#f1f5f9;--ink-soft:#e2e8f0;--text:#cbd5e1;--muted:#94a3b8;--muted-2:#64748b;
+  --border:#2a3245;--border-soft:#1f2738;--border-mid:#243042;
+  --bg:#0a0e1a;--card:#141926;--card-soft:#10172a;
+  --grid-line:rgba(255,255,255,.04);
+  --nav-bg:rgba(20,25,38,.78);
+  --shadow-card:0 16px 40px rgba(0,0,0,.45);
+  --shadow-soft:0 8px 24px rgba(0,0,0,.35);
+  --footer-bg:#05080f;--footer-fg:#94a3b8;--footer-strong:#fff;--footer-link:#2dd4bf;--footer-link-h:#5eead4;
+  --teal-mint:rgba(45,212,191,.35);
+  --purple:#a78bfa;--purple-d:#c4b5fd;--purple-light:rgba(167,139,250,.12);--purple-border:rgba(167,139,250,.22);
+  --amber:#fbbf24;--amber-d:#fde047;--amber-light:rgba(251,191,36,.12);--amber-border:rgba(251,191,36,.22);
+  --green-d:#34d399;--orange:#fb923c;--violet-2:#c084fc;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink-soft);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased;transition:background-color .3s ease,color .3s ease}
 
-  section { padding: 56px 0; }
-  section.alt { background: white; }
+/* Grid background */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
 
-  h2 {
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: -0.3px;
-    margin-bottom: 10px;
-  }
-  .section-sub { color: #64748b; font-size: 16px; margin-bottom: 28px; max-width: 720px; }
+/* ── HERO ── */
+.hero{position:relative;padding:80px 32px 90px;text-align:center;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(13,148,136,.06) 0%,transparent 70%);pointer-events:none}
+[data-theme="dark"] .hero::before{background:radial-gradient(circle,rgba(45,212,191,.10) 0%,transparent 70%)}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--primary-soft);border:1px solid var(--teal-mint);padding:8px 18px;border-radius:999px;font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:28px}
+.hero-badge .dot{width:8px;height:8px;background:#10b981;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.6)}}
+.hero h1{font-size:clamp(36px,5.5vw,62px);font-weight:900;line-height:1.1;letter-spacing:-1.5px;margin-bottom:20px;color:var(--ink)}
+.hero h1 .accent{background:linear-gradient(135deg,var(--primary),var(--accent-strong));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:18px;color:var(--muted);max-width:620px;margin:0 auto 40px;line-height:1.8}
+.hero-buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn{padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;transition:all .3s;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 14px rgba(13,148,136,.25)}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-2px);box-shadow:0 8px 25px rgba(13,148,136,.35)}
+[data-theme="dark"] .btn-primary{color:#0a0e1a}
+.btn-outline{background:var(--card);color:var(--text);border:2px solid var(--border)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-2px)}
 
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 18px;
-  }
-  .card {
-    background: white;
-    border: 2px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 26px 28px;
-    text-decoration: none;
-    color: #1e293b;
-    transition: all 0.15s;
-    display: block;
-  }
-  section.alt .card { background: #fafaf9; }
-  .card:hover {
-    border-color: #0d9488;
-    transform: translateY(-3px);
-    box-shadow: 0 14px 34px rgba(13,148,136,0.12);
-  }
-  .card .badge {
-    display: inline-block;
-    background: #ccfbf1;
-    color: #0f766e;
-    padding: 3px 10px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-  .card h3 { font-size: 20px; margin-bottom: 8px; }
-  .card p { font-size: 14px; color: #64748b; margin-bottom: 14px; }
-  .card .cta { color: #0f766e; font-weight: 700; font-size: 14px; }
+/* ── STATS ── */
+.stats{background:var(--card);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft);position:relative;z-index:1}
+.stats-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:40px 32px}
+.stat{text-align:center}
+.stat .num{font-size:38px;font-weight:800;color:var(--primary)}
+.stat .label{font-size:13px;color:var(--muted-2);margin-top:4px;text-transform:uppercase;letter-spacing:1.2px;font-weight:600}
 
-  .whatincluded {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 14px;
-    margin-top: 20px;
-  }
-  .whatincluded > div {
-    background: white;
-    padding: 18px 20px;
-    border-radius: 10px;
-    border-left: 3px solid #0d9488;
-  }
-  section.alt .whatincluded > div { background: #fafaf9; }
-  .whatincluded h4 { color: #0f766e; font-size: 14px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
-  .whatincluded li { color: #475569; font-size: 14px; margin: 3px 0; list-style: none; padding-left: 16px; position: relative; }
-  .whatincluded li::before { content: "&#9656;"; position: absolute; left: 0; color: #0d9488; }
+/* ── SECTIONS ── */
+.wrap{max-width:1100px;margin:0 auto;padding:0 32px}
+section{padding:90px 0;position:relative;z-index:1}
+.section-header{text-align:center;margin-bottom:56px}
+.section-tag{display:inline-block;background:var(--primary-soft);color:var(--primary-dark);padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;border:1px solid var(--teal-mint)}
+.section-header h2{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-.5px;color:var(--ink);margin-bottom:12px}
+.section-header h2 .accent{color:var(--primary)}
+.section-header p{color:var(--muted);font-size:16px;max-width:580px;margin:0 auto}
 
-  footer {
-    padding: 34px 0;
-    text-align: center;
-    color: #64748b;
-    font-size: 13px;
-    border-top: 1px solid #e2e8f0;
-  }
-  footer a { color: #0f766e; text-decoration: none; font-weight: 600; }
-  footer a:hover { text-decoration: underline; }
+/* ── PATH CARDS ── */
+.paths-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+.path-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px 28px;text-decoration:none;color:var(--ink-soft);transition:all .3s;display:block;position:relative;overflow:hidden}
+.path-card:hover{border-color:var(--primary);transform:translateY(-4px);box-shadow:var(--shadow-card)}
+.path-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0;transition:opacity .3s;opacity:0}
+.path-card:nth-child(1)::after{background:linear-gradient(90deg,var(--primary),var(--accent))}
+.path-card:nth-child(2)::after{background:linear-gradient(90deg,var(--purple),var(--violet-2))}
+.path-card:nth-child(3)::after{background:linear-gradient(90deg,var(--amber),var(--orange))}
+.path-card:hover::after{opacity:1}
+.path-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px}
+.path-icon.s{background:var(--primary-soft);border:1px solid var(--primary-light)}
+.path-icon.i{background:var(--purple-light);border:1px solid var(--purple-border)}
+.path-icon.c{background:var(--amber-light);border:1px solid var(--amber-border)}
+.path-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:4px;margin-bottom:12px}
+.path-badge.s{background:var(--primary-soft);color:var(--primary-dark)}
+.path-badge.i{background:var(--purple-light);color:var(--purple-d)}
+.path-badge.c{background:var(--amber-light);color:var(--amber-d)}
+.path-card h3{font-size:20px;font-weight:700;margin-bottom:8px;color:var(--ink)}
+.path-card p{color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:16px}
+.path-meta{display:flex;gap:16px;font-size:13px;color:var(--muted-2);font-weight:500;margin-bottom:16px}
+.path-meta span{display:flex;align-items:center;gap:4px}
+.path-cta{font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:6px;transition:gap .3s}
+.path-card:hover .path-cta{gap:12px}
+.path-cta.s{color:var(--primary)}
+.path-cta.i{color:var(--purple-d)}
+.path-cta.c{color:var(--amber-d)}
+
+/* ── CURRICULUM ── */
+.curriculum{background:var(--card);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)}
+.cur-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.cur-card{background:var(--card-soft);border:1px solid var(--border);border-radius:12px;padding:24px;transition:all .3s;position:relative}
+.cur-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0}
+.cur-card:nth-child(1)::before{background:var(--primary)}
+.cur-card:nth-child(2)::before{background:var(--purple)}
+.cur-card:nth-child(3)::before{background:#10b981}
+.cur-card:nth-child(4)::before{background:var(--amber)}
+.cur-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-soft);border-color:var(--primary)}
+.cur-card h4{font-size:13px;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;font-weight:700}
+.cur-card:nth-child(1) h4{color:var(--primary)}
+.cur-card:nth-child(2) h4{color:var(--purple-d)}
+.cur-card:nth-child(3) h4{color:var(--green-d)}
+.cur-card:nth-child(4) h4{color:var(--amber-d)}
+.cur-card li{color:var(--muted);font-size:14px;list-style:none;padding:5px 0 5px 18px;position:relative;transition:color .3s}
+.cur-card li::before{content:'';position:absolute;left:0;top:13px;width:6px;height:6px;border-radius:50%}
+.cur-card:nth-child(1) li::before{background:var(--primary)}
+.cur-card:nth-child(2) li::before{background:var(--purple)}
+.cur-card:nth-child(3) li::before{background:#10b981}
+.cur-card:nth-child(4) li::before{background:var(--amber)}
+.cur-card li:hover{color:var(--ink)}
+
+/* ── QUOTE / TAGLINE ── */
+.tagline-section{padding:80px 32px;text-align:center;position:relative;z-index:1}
+.tagline-section h2{font-size:clamp(24px,3.5vw,38px);font-weight:800;color:var(--ink);margin-bottom:12px;letter-spacing:-.5px}
+.tagline-section p{color:var(--muted);font-size:17px;max-width:600px;margin:0 auto}
+.tagline-section .accent{color:var(--primary)}
+
+/* ── FEATURES ── */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:30px;transition:all .3s;text-align:center}
+.feat-card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.06);border-color:var(--teal-mint)}
+[data-theme="dark"] .feat-card:hover{box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.feat-icon{font-size:36px;margin-bottom:14px;display:block}
+.feat-card h3{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:8px}
+.feat-card p{color:var(--muted);font-size:14px}
+
+/* ── SCROLL REVEAL ── */
+.sr{opacity:0;transform:translateY(30px);transition:opacity .7s,transform .7s}
+.sr.v{opacity:1;transform:translateY(0)}
+.sc .sr{transition-delay:calc(var(--i,0) * .1s)}
+
+/* ── FOOTER ── */
+footer{background:var(--footer-bg);color:var(--footer-fg);padding:50px 32px 30px;text-align:center;position:relative;z-index:1}
+footer .logo{font-size:18px;font-weight:800;color:var(--footer-strong);margin-bottom:12px}
+footer .logo span{color:var(--footer-link)}
+footer p{font-size:13px;margin-bottom:6px}
+footer a{color:var(--footer-link);text-decoration:none;font-weight:600;transition:color .3s}
+footer a:hover{color:var(--footer-link-h)}
+footer .divider{width:60px;height:2px;background:linear-gradient(90deg,#0d9488,#06b6d4);margin:20px auto;border-radius:2px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .nav-links{display:none}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .hero h1{font-size:32px}
+  .hero-buttons{flex-direction:column;align-items:center}
+  .paths-grid,.cur-grid,.feat-grid{grid-template-columns:1fr}
+  section{padding:60px 0}
+}
 </style>
 </head>
 <body>
 
-<header class="hero">
-  <div class="wrap">
-    <span class="tagline">&#9889; Free &amp; Open Course</span>
-    <h1>Embedded Systems &mdash; Zero to Hero</h1>
-    <p class="subtitle">A practical, hands-on curriculum covering basic electronics, Arduino, ESP32, sensors, and real projects. Built as an entry-level prep course for Embedded Systems Trainee roles in India.</p>
+
+<header class="site-bar">
+  <div class="site-bar-inner">
+    <a href="index.html" class="site-bar-logo">⚡ <span>EmbeddedZero</span></a>
+    <nav class="site-bar-nav">
+      <a href="index.html" class="active">Home</a>
+      <a href="notes/index.html">Course Notes</a>
+      <a href="teaching/index.html">Teaching Guide</a>
+      <a href="career_plan.html">Career Plan</a>
+    </nav>
   </div>
 </header>
 
-<section>
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-badge"><span class="dot"></span> Free &amp; Open Source Course</div>
+  <h1>Smartest way to master<br><span class="accent">Embedded Systems.</span></h1>
+  <p class="hero-sub">A practical, hands-on curriculum covering basic electronics, Arduino, ESP32, sensors, and real projects. Built for entry-level embedded systems roles in India.</p>
+  <div class="hero-buttons">
+    <a href="notes/index.html" class="btn btn-primary" id="hero-start-btn">Start Learning →</a>
+    <a href="#curriculum" class="btn btn-outline" id="hero-explore-btn">Explore Curriculum</a>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-grid">
+    <div class="stat"><div class="num" data-target="12">0</div><div class="label">Lessons</div></div>
+    <div class="stat"><div class="num" data-target="10">0</div><div class="label">Weeks</div></div>
+    <div class="stat"><div class="num" data-target="21">0</div><div class="label">Hands-on Labs</div></div>
+    <div class="stat"><div class="num" data-target="35">0</div><div class="label">Topic Cards</div></div>
+  </div>
+</div>
+
+<!-- PATHS -->
+<section id="paths">
   <div class="wrap">
-    <h2>Three Ways to Use This Course</h2>
-    <p class="section-sub">Pick your path &mdash; the material is the same, but the framing is tuned for who's reading.</p>
-
-    <div class="cards">
-
-      <a class="card" href="notes/index.html">
-        <span class="badge">For Students</span>
-        <h3>&#128218; Course Notes</h3>
+    <div class="section-header sr">
+      <span class="section-tag">Start Your Journey</span>
+      <h2>Choose a path to begin <span class="accent">mastering embedded.</span></h2>
+      <p>Pick your path &mdash; same material, framing tuned for who's reading.</p>
+    </div>
+    <div class="paths-grid sc">
+      <a class="path-card sr" style="--i:0" href="notes/index.html" id="card-students">
+        <div class="path-icon s">📘</div>
+        <span class="path-badge s">For Students</span>
+        <h3>Course Notes</h3>
         <p>12 self-paced lessons with Tinkercad / Wokwi simulator exercises. Zero-to-hero pacing, quiz questions, and a capstone project.</p>
-        <span class="cta">Start learning &rarr;</span>
+        <div class="path-meta"><span>📖 12 Lessons</span><span>⏱ ~10 Weeks</span></div>
+        <span class="path-cta s">Start learning →</span>
       </a>
-
-      <a class="card" href="teaching/index.html">
-        <span class="badge">For Instructors</span>
-        <h3>&#128196; Teaching Guide</h3>
-        <p>35 topic cards with session scripts, worked examples, common-mistake callouts, and check-questions with answers. For mentoring someone through the curriculum.</p>
-        <span class="cta">Open guide &rarr;</span>
+      <a class="path-card sr" style="--i:1" href="teaching/index.html" id="card-instructors">
+        <div class="path-icon i">📋</div>
+        <span class="path-badge i">For Instructors</span>
+        <h3>Teaching Guide</h3>
+        <p>35 topic cards with session scripts, worked examples, common-mistake callouts, and check-questions with answers.</p>
+        <div class="path-meta"><span>📝 35 Topics</span><span>🔧 21 Labs</span></div>
+        <span class="path-cta i">Open guide →</span>
       </a>
-
-      <a class="card" href="career_plan.html">
-        <span class="badge">Career</span>
-        <h3>&#127919; Career Plan</h3>
-        <p>10-week roadmap to land an entry-level embedded role: target companies, certifications worth earning, interview prep, and a weekly action plan.</p>
-        <span class="cta">See roadmap &rarr;</span>
+      <a class="path-card sr" style="--i:2" href="career_plan.html" id="card-career">
+        <div class="path-icon c">🎯</div>
+        <span class="path-badge c">Career</span>
+        <h3>Career Plan</h3>
+        <p>10-week roadmap to land an entry-level embedded role: target companies, certifications, interview prep, and weekly action plans.</p>
+        <div class="path-meta"><span>🏢 Companies</span><span>📋 Action Plan</span></div>
+        <span class="path-cta c">See roadmap →</span>
       </a>
-
     </div>
   </div>
 </section>
 
-<section class="alt">
-  <div class="wrap">
-    <h2>What's Inside</h2>
-    <p class="section-sub">Balanced across hardware and software &mdash; the actual skill mix Indian EMS and product companies hire for.</p>
+<!-- TAGLINE -->
+<div class="tagline-section">
+  <h2>Great Engineers Are Built by <span class="accent">Solving.</span></h2>
+  <p>Not by just watching videos — but by designing, debugging, and building real-world embedded projects from scratch.</p>
+</div>
 
-    <div class="whatincluded">
-      <div>
+<!-- CURRICULUM -->
+<section class="curriculum" id="curriculum">
+  <div class="wrap">
+    <div class="section-header sr">
+      <span class="section-tag">What's Inside</span>
+      <h2>Complete <span class="accent">Curriculum</span></h2>
+      <p>Balanced across hardware and software — the actual skill mix companies hire for.</p>
+    </div>
+    <div class="cur-grid sc">
+      <div class="cur-card sr" style="--i:0">
         <h4>Electronics</h4>
         <ul>
           <li>Ohm's &amp; Kirchhoff's laws</li>
@@ -160,7 +269,7 @@
           <li>Op-amp configurations</li>
         </ul>
       </div>
-      <div>
+      <div class="cur-card sr" style="--i:1">
         <h4>Embedded Hardware</h4>
         <ul>
           <li>Schematic reading</li>
@@ -170,7 +279,7 @@
           <li>PCB basics (KiCad)</li>
         </ul>
       </div>
-      <div>
+      <div class="cur-card sr" style="--i:2">
         <h4>Embedded Software</h4>
         <ul>
           <li>Arduino / ESP32 basics</li>
@@ -180,7 +289,7 @@
           <li>Sensor integration</li>
         </ul>
       </div>
-      <div>
+      <div class="cur-card sr" style="--i:3">
         <h4>Real Projects</h4>
         <ul>
           <li>LED blink (Arduino)</li>
@@ -194,13 +303,53 @@
   </div>
 </section>
 
-<footer>
+<!-- FEATURES -->
+<section id="features">
   <div class="wrap">
-    Built and maintained by <a href="https://github.com/classyvaibhav" target="_blank">@classyvaibhav</a> &middot; Free for everyone &middot; Contributions welcome
-    <br><br>
-    Source: <a href="https://github.com/classyvaibhav/embedded-course" target="_blank">github.com/classyvaibhav/embedded-course</a>
+    <div class="section-header sr">
+      <span class="section-tag">Built for Results</span>
+      <h2>Why Choose <span class="accent">This Course</span></h2>
+      <p>Not another textbook. A practical system designed to make you industry-ready.</p>
+    </div>
+    <div class="feat-grid sc">
+      <div class="feat-card sr" style="--i:0">
+        <span class="feat-icon">🔬</span>
+        <h3>Simulator-First</h3>
+        <p>Every lesson links to free Tinkercad or Wokwi circuits. No hardware purchase needed to start learning.</p>
+      </div>
+      <div class="feat-card sr" style="--i:1">
+        <span class="feat-icon">🎯</span>
+        <h3>Industry-Aligned</h3>
+        <p>Curriculum maps to actual embedded trainee job descriptions from Indian EMS and product companies.</p>
+      </div>
+      <div class="feat-card sr" style="--i:2">
+        <span class="feat-icon">🚀</span>
+        <h3>Portfolio-Ready</h3>
+        <p>Capstone project with full BOM, code, and documentation — ready to showcase on your GitHub profile.</p>
+      </div>
+    </div>
   </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">⚡ <span>Embedded</span>Zero</div>
+  <p>Built and maintained by <a href="https://github.com/classyvaibhav" target="_blank">@classyvaibhav</a> · Free for everyone · Contributions welcome</p>
+  <div class="divider"></div>
+  <p>Source: <a href="https://github.com/classyvaibhav/embedded-course" target="_blank">github.com/classyvaibhav/embedded-course</a></p>
 </footer>
 
+<script>
+// Scroll reveal
+const observer=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('v')})},{threshold:.15});
+document.querySelectorAll('.sr').forEach(el=>observer.observe(el));
+
+// Counter animation
+const numObserver=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting&&!el.target.dataset.done){el.target.dataset.done='1';const t=+el.target.dataset.target,d=1200,s=performance.now();(function u(n){const p=Math.min((n-s)/d,1);el.target.textContent=Math.round(t*(1-Math.pow(1-p,3)));p<1?requestAnimationFrame(u):el.target.textContent=t})(s)}})},{threshold:.5});
+document.querySelectorAll('[data-target]').forEach(el=>numObserver.observe(el));
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'})})});
+</script>
 </body>
 </html>
