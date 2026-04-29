@@ -45,11 +45,7 @@
   body.live .live-strip .prog-fill,body.session-open:not(.live) .live-strip .prog-fill{background:#fff;box-shadow:0 0 8px rgba(255,255,255,.4)}
   .live-strip .prog-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:.5px;white-space:nowrap;color:var(--ink);opacity:.85}
   body.live .live-strip .prog-label,body.session-open:not(.live) .live-strip .prog-label{color:#fff;opacity:.95}
-  /* Recording indicator — only shown while mediaRecorder is running */
-  .live-strip .rec-pip{display:none;align-items:center;gap:5px;font-size:10.5px;font-weight:800;letter-spacing:.6px;color:#fff;padding:3px 9px;border-radius:4px;background:rgba(220,38,38,.85);text-transform:uppercase;line-height:1}
-  .live-strip .rec-pip::before{content:'';width:7px;height:7px;border-radius:50%;background:#fff;animation:recBlink 1.2s infinite}
-  body.recording .live-strip .rec-pip{display:inline-flex}
-  @keyframes recBlink{0%,100%{opacity:1}50%{opacity:.25}}
+
   .live-strip .timer{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;opacity:.7;letter-spacing:1px}
   @media(max-width:720px){
     .live-strip{flex-wrap:wrap;gap:8px;padding:8px 14px}
@@ -120,7 +116,7 @@
 <div class="live-strip" id="strip">
   <span class="dot pending" id="dot"></span>
   <span id="status">Connecting to your tutor…</span>
-  <span class="rec-pip" title="Audio is being recorded for review">REC</span>
+
   <div class="progress" title="Course progress">
     <span class="prog-label" id="prog-label">0 / 12 · 0%</span>
     <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
