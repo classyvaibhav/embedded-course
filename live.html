@@ -304,7 +304,7 @@
     }
 
     /* First-start path: create the peer and register with the broker. */
-    setStatus('Going online…', 'pending');
+    setStatus('Starting…', 'pending');
     peer = new Peer(tutorId, { debug: 1 });
 
     /* As soon as the broker accepts our session ID, the live state begins —
