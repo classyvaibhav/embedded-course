@@ -7,7 +7,7 @@
 <meta name="description" content="Tutor's listening page — receives the student's microphone audio.">
 <meta name="robots" content="noindex,nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="assets/js/theme-toggle.js"></script>
+<script src="assets/js/theme-toggle.js?v=2"></script>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
   :root{
@@ -122,8 +122,12 @@
     hangup: document.getElementById('hangup'),
   };
 
+  /* Single shared session ID — same constant in live.html and listen.html so
+     ANY laptop pair can connect without per-device localStorage coordination.
+     Override at runtime via ?id=xxx in the URL (or by editing the constant). */
   const DEFAULT_TUTOR_ID = 'embeddedzero-vk-bahar-live';
-  let tutorId = (localStorage.getItem(STORAGE_KEY) || '').trim() || DEFAULT_TUTOR_ID;
+  const params = new URLSearchParams(location.search);
+  let tutorId = (params.get('id') || DEFAULT_TUTOR_ID).trim();
   els.id.value = tutorId;
   updateShareLink();
 
@@ -267,7 +271,9 @@
     const next = els.id.value.trim();
     if (!next) return;
     tutorId = next;
-    localStorage.setItem(STORAGE_KEY, tutorId);
+    /* Not persisted — the default lives in source so both pages always agree.
+       Apply only changes this tab's session for now. To make it the new
+       default, edit DEFAULT_TUTOR_ID in listen.html and live.html. */
     updateShareLink();
     connectPeer();
   });

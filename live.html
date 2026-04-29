@@ -7,7 +7,7 @@
 <meta name="description" content="Live study session — read aloud while your tutor listens.">
 <meta name="robots" content="noindex,nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<script src="assets/js/theme-toggle.js"></script>
+<script src="assets/js/theme-toggle.js?v=2"></script>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
   :root{
@@ -132,11 +132,13 @@
 
 <script>
 (function () {
-  const STORAGE_KEY = 'ec-tutor-id';
+  /* Single shared session ID — same constant in live.html and listen.html so
+     ANY laptop pair can connect without per-device coordination. Override
+     at runtime via ?id=xxx in the URL. NOT persisted to localStorage on
+     purpose — that was causing different machines to drift to different IDs. */
   const DEFAULT_TUTOR_ID = 'embeddedzero-vk-bahar-live';
   const params = new URLSearchParams(location.search);
-  const tutorId = (params.get('id') || localStorage.getItem(STORAGE_KEY) || DEFAULT_TUTOR_ID).trim();
-  localStorage.setItem(STORAGE_KEY, tutorId);
+  const tutorId = (params.get('id') || DEFAULT_TUTOR_ID).trim();
 
   const els = {
     dot: document.getElementById('dot'),
